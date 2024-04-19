@@ -2,31 +2,23 @@
 
 ## About
 
-tktk Write a short but descriptive summary of the content in this module.
+In this lesson, we set up a basic authentication strategy in Flask using JavaScript Web Tokens for data encryption and transfer.
 
 ## Prerequisites
 
-- tktk
-- tktk
-- tktk
+- Intro to Flask
+- Flask and Postgres REST API
 
 ## Content
 
 | Lesson | Video Time | Video | Skills |
 | ------ |:----------:|:-----:| ------ |
-| [Setup](./setup/README.md)                               | -- | -- | Setting up the development environment  |
-| [Concepts](./concepts/README.md)                         | -- | -- | tktk skills covered                     |
-| [tktk Microlesson Name](./tktk-microlesson-01/README.md) | -- | -- | tktk skills covered                     |
-| [tktk Microlesson Name](./tktk-microlesson-02/README.md) | -- | -- | tktk skills covered                     |
-| [tktk Microlesson Name](./tktk-microlesson-03/README.md) | -- | -- | tktk skills covered                     |
-| **Total content**                                        | -- | -- |                                         |
-
-## Level Up content
-
-| Lesson | Video Time | Video | Skills |
-| ------ |:----------:|:-----:| ------ |
-| [tktk Microlesson Name](./tktk-microlesson-04/README.md) | -- | -- | tktk skills covered                     |
-| **Total Level Up content**                               | -- | -- |                                         |
+| [Setup](./setup/README.md) | Setting up the development environment |
+| [Concepts](./concepts/README.md) | Describe the use of JWTs as an authentication strategy |
+| [Setting Up JWTs](./setting-up-jwts/README.md) | Sign and Verify JWTs in Flask |
+| [Sign Up Route](./sign-up-route/README.md) | Implement a sign up route with Flask and JWTs |
+| [Sign In Route](./sign-in-route/README.md) | Implement a sign in route with Flask and JWTs |
+| [Protecting Routes](./protecting-routes/README.md) | Protect authenticated Flask routes |           
 
 ## References
 

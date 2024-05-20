@@ -1,4 +1,4 @@
-# ![[tktk Module Name] - References](./assets/hero.png)
+# ![JWT Authentication in Flask APIs - References](./assets/hero.png)
 
 ## Lesson references
 

@@ -1,5 +1,5 @@
 {
-  "name": "tktk-module-name",
+  "name": "jwt-authentication-in-flask-apis",
   "version": "1.0.0",
   "description": "",
   "scripts": {

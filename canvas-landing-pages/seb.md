@@ -1,1 +1,1 @@
-# ![[tktk Module Name]](../assets/tktk-hero.png)
+# ![JWT Authentication in Flask APIs](../assets/hero.png)

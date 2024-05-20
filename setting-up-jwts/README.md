@@ -14,7 +14,7 @@ pipenv install pyjwt
 
 JWTs are a way to securely transmit information between parties as a JSON object. This information can be verified and trusted because it is digitally signed. JWTs can be signed using a secret (with the `HMAC` algorithm) or a public/private key pair using `RSA` or `ECDSA`.
 
-> No need to know what `HMAC`, `RSA`, or `ECDSA` are. Just know that they are different algorithms used to sign JWTs.
+> 💡 No need to know what `HMAC`, `RSA`, or `ECDSA` are. Just know that they are different algorithms used to sign JWTs.
 
 We don't have to know exactly how JWTs are created and verified, but we still need to know how to use them in our application.
 
@@ -23,7 +23,7 @@ Using JWTs breaks down into two actions:
 - **Signing**: Creating a JWT and sending it to the client.
 - **Verifying**: Receiving a JWT from the client and verifying it.
 
-We will create two routes to handle these two actions in our Flask application. These will just be test routes that we won't use in the final application, but they will help us understand how to use JWTs in Flask.
+In this lesson, we will create routes to handle these two actions, as a demonstration of how to use JWTs in Flask. These routes **will not appear in the final application**, and should only be used for improving your conceptual understanding of JWTs in Flask. 
 
 ## Signing a JWT
 
@@ -40,7 +40,6 @@ from flask import Flask, jsonify
 @app.route('/sign-token', methods=['GET'])
 def sign_token():
     return jsonify({ "message": "You are authorized!"})
-
 ```
 
 Open up Postman and make a GET request to `http://localhost:5000/sign-token`. The response should show the message `You are authorized!`. Make sure you can see the message before you move on.
@@ -75,20 +74,29 @@ def sign_token():
 
 This mock user object will be a stand-in for a user object that we would have in our database; we'll use it as the payload for our JWT.
 
-We have our **payload**; now we must create the **secret key**. Create a `.env` file, and inside of it, add a new key-value pair for the secret key:
+We have our **payload**; now we must create the **secret key**. 
+
+First, create a `.env` file:
 
 ```bash
-JWT_SECRET=L2d6ZjAV
+touch .env
 ```
 
-Before moving on, let's talk about the secret key. This key can be anything as long as it is a string. This could be as simple as the word `supersecret` or `catsarecool`; or as complex as `4inK]I+X+;n2+g"*>AMQc{p99)9DB@a@`. As the name implies, the key to the secret key should be secret and not shared or left in your code where someone would have access to view it. This is why we're storing it in the `.env` file, which you should always be sure to include in your `.gitignore` file to prevent it from surfacing on github.
+And inside of it, add a new key-value pair for the secret key:
+
+```bash
+JWT_SECRET=supersecret
+```
+
+Before moving on, let's talk about the secret key. This key can be anything as long as it is a string. This could be as simple as the word `supersecret` or `catsarecool`; or as complex as `4inK]I+X+;n2+g"*>AMQc{p99)9DB@a@`. As the name implies, the key to the secret key should be secret and not shared or left in your code where someone would have access to view it. This is why we're storing it in the `.env` file, which **you should always be sure to include in your `.gitignore` file** to prevent it from surfacing on GitHub.
 
 > 🧠 If you want a more secure secret key, you can use a password generator to create a random string of characters. Or, simply bash on your keyboard for a few seconds and use that as your secret key. Just remember to remove spaces.
 
-Then, to access these environment variables, we'll need to import the `python-dotenv` package:
+Then, to access these environment variable, we'll need to import the `python-dotenv` package:
 
-`app.py`
 ```python
+# app.py
+
 from dotenv import load_dotenv
 import os
 load_dotenv()
@@ -96,14 +104,21 @@ load_dotenv()
 
 This will give us access to environment variables using the `os.getenv('variable_name')` method.
 
-We now have both required arguments for the `encode` method. 
+Next, let's make use of the `pyjwt` package and import `jwt`:
+
+```python
+# app.py
+
+# Add an import for the jwt library:
+import jwt
+```
+
+We now have everything we need for the `encode` method. 
 
 Pass both the mock user object and the secret key to the `sign` method and assign the result to a variable called `token`, and send that variable as the response:
 
 ```python
-# add an import for the jwt library
-import jwt
-
+# app.py
 @app.route('/sign-token')
 def sign_token():
     user = {
@@ -111,8 +126,9 @@ def sign_token():
         "username": "test",
         "password": "test"
     }
-    token = jwt.encode(user, os.getenv('JWT_SECRET'), algorithms=["HS256"])
-    return token
+    token = jwt.encode(user, os.getenv('JWT_SECRET'), algorithm="HS256")
+    # return token
+    return jsonify({"token": token})
 ```
 
 Send the token back to the client in the response:
@@ -125,7 +141,7 @@ We have successfully created a JWT and sent it to the client! We will use this t
 
 ## Verifying a JWT
 
-Just like with the signing route, our verifying route will not be a part of our finished application and will just be used for testing and learning purposes. 
+Just like with the signing route, our **verifying route will not be a part of our finished application** and will just be used for testing and learning purposes. 
 
 Inside the `app.py` file create a new route to receive a POST request. This route should follow the structure below:
 
@@ -139,7 +155,17 @@ def verify_token():
     return jsonify({"message": "Token is valid."})
 ```
 
-Using Postman, make a POST request to `http://localhost:5000/verify-token`. You should see a response with the message `Token is valid`. Make sure you can see the message before you move on.
+Using Postman, make a POST request to `http://localhost:5000/verify-token`. 
+
+In Postman, you should see a response with the following message:
+
+```json
+{
+    "message": "Token is valid."
+}
+```
+
+Make sure you can see the message before you move on.
 
 Next, we'll use the `decode` method to verify the token. The `decode` method takes two arguments:
 
@@ -160,19 +186,27 @@ Once in the `Authorization` tab, select `Bearer Token` from the dropdown. Paste 
 
 When we send a request to the `verify-token` route, the token will be included in the request's headers. We can access this token in the route handler using `request.headers.get('Authorization')`.
 
-In our code, let's return to our `verify-token` route. Remove the placeholder message from `res.json` and replace it with a new `token` variable from `request.headers.get('Authorization')`:
+Returning to our code, in `app.py`, update the existing import below with the `request` package:
 
 ```python
-#add import for request
-from Flask import flask, jsonify, request
+# Add import for request
+from flask import Flask, jsonify, request
+```
 
+Next, let's return to our `verify-token` route. 
+
+Remove the placeholder message from `res.json` and replace it with a new `token` variable from `request.headers.get('Authorization')`:
+
+```python
 @app.route('/verify-token', methods=['POST'])
 def verify_token():
     token = request.headers.get('Authorization')
     return jsonify({"token": token})
 ```
 
-Test with Postman to ensure you can see the token in the response. You should see something like:
+Test it out with Postman to ensure you can see the token in the response. 
+
+You should see something like:
 
 ```json
 {
@@ -180,13 +214,15 @@ Test with Postman to ensure you can see the token in the response. You should se
 }
 ```
 
-Notice the word `Bearer` is in front of the token. This is a convention that is used to specify the type of token that is being sent. We will need to remove this word before we can verify the token, because the decode method only expects the token with nothing else prepended.
+Notice the word `Bearer` is in front of the token. This is a convention that is used to specify the type of token that is being sent. We will need to remove this word before we can verify the token, because the decode method expects **only the token with nothing else prepended**.
 
 We'll use the `split` method to remove the word `Bearer` from the token. This method will split the string into an array of strings. We can then grab the second item in the array, which will be the token.
 
 ```python
-token = request.headers.get('Authorization').split(' ')[1]
-return jsonify({"token": token})
+@app.route('/verify-token', methods=['POST'])
+def verify_token():
+    token = request.headers.get('Authorization').split(' ')[1]
+    return jsonify({"token": token})
 ```
 
 Testing this with Postman again, we can see that we just get back the token without the word `Bearer` in front of it.
@@ -206,4 +242,18 @@ def verify_token():
        return jsonify({"error": error.message})
 ```
 
-Using Postman, make a POST request to `http://localhost:5000/verify-token`. You should see a response with the payload used to create the token. Notice that the payload is the mock user we created in the previous route! This will come in handy when we start to use JWTs for authentication. In the next section, we'll take these ideas of signing and verifying JWTs and apply them to our application.
+Using Postman, make a POST request to `http://localhost:5000/verify-token`. 
+
+You should see a response with the payload used to create the token:
+
+```plaintext
+{
+    "user": {
+        "id": 1,
+        "password": "test",
+        "username": "test"
+    }
+}
+```
+
+Notice that the payload is the mock user we created in the previous route! This will come in handy when we start to use JWTs for authentication. In the next section, we'll take these ideas of signing and verifying JWTs and apply them to our application.

@@ -2,7 +2,7 @@
 
 **Learning objective:** By the end of this lesson, students will be able to use a token payload to protect a route from unauthorized users.
 
-## Protecting Routes
+## Protecting routes with middleware
 
 At this stage, we're authenticating users when they sign in to our app by providing them a token to include with their future requests. Next, we want to use those tokens to protect specific routes from unauthenticated or unauthorized users.
 
@@ -14,13 +14,7 @@ We'll use Flasks `decorator` pattern to create our own custom decorator, which w
 
 Let's [consult the docs](https://flask.palletsprojects.com/en/2.3.x/patterns/viewdecorators/) on the pattern before writing our own.
 
-First, create a middleware file called `auth_middleware`:
-
-```bash
-touch auth_middleware.py
-```
-
-In the Setting up JWTs lesson, we wrote a function that accepts a token (via request.headers.get('Authorization')) and then verifies it: 
+When first learning how to implement JWTs in Flask, we wrote a function that accepts and verifies a token:
 
 ```python
 @app.route('/verify-token', methods=['POST'])
@@ -33,17 +27,17 @@ def verify_token():
        return jsonify({"error": error.message})
 ```
 
-The good news is that this function will work perfectly as a middleware, with a few small changes. Instead of sending a response to a successful token, the function should return the result of the next function IT was passed using the decorator pattern.
+This function will work well as a middleware, with a few small changes. 
 
-Let's take this complex maneuver one step at a time, starting with the flask documentation's example decorator for guidance:
+Instead of sending a response to a successful token, the function should return *the result of the next function it was passed* using the decorator pattern.
+
+Let's take this complex maneuver one step at a time, starting with the Flask documentation's decorator example for guidance:
 
 ```python
 def token_required(f)
 ```
 
-This line defines our decorator function, `token_required`, and it accepts the next function in the middleware stack as an input parameter.
-
-This means we'll get to call the input function, `f`, if we want to pass the request along to its final destination.
+This line defines our decorator function, `token_required`, and it accepts the next function in the middleware stack as an input parameter. We'll call upon this input function (`f`) to pass the request along to its final destination.
 
 ```python
 def token_required(f)
@@ -53,17 +47,37 @@ def token_required(f)
     return decorated_function
 ```
 
-This version of the decorator would do absolutely nothing, but it's helpful to stop here and recognize what this is doing.
+This version of the decorator wouldn't accomplish anything, but it's helpful as an example of the pattern we'll use.
 
-Inside our custom decorator, we're using the func_tools `@wraps(f)` to let Python know we're creating a decorator that wraps around another function, `f`.
+Inside our custom decorator, we're using the func_tools `@wraps(f)` to let Python know we're creating a decorator that wraps around another function (`f`).
 
 We then define the actual functionality we want the decorator to have in the form of our `decorator_function` definition.
 
-Our simple example is merely passing the request down the chain by invoking the next function, `f`, with all the same args and kwargs the decorator is being provided.
+Our simple example is merely passing the request down the chain by invoking the next function (`f`), with all the same args and kwargs the decorator is being provided.
 
-Now, let's add our actual token decoding into the mix:
+## Building `token_required` middleware
+
+Let's apply this approach to our Flask app.
+
+First, create a new middleware file called `auth_middleware`:
+
+```bash
+touch auth_middleware.py
+```
+
+Add the following imports to the top of `auth_middleware.py`:
 
 ```python
+from functools import wraps
+from flask import request, jsonify
+import jwt
+import os
+```
+
+Next, let's add the `token_required` function:
+
+```python
+# auth_middleware.py
 def token_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -90,9 +104,16 @@ To add data along the middleware stack, Flask provides us a `g` built-in tool th
 
 Let's add that to our growing list of flask imports, and then we'll use it in the eventual routes that get screened by this middleware.
 
-```python
-from flask import request, jsonify, g
+Update the existing import in `app.py` with `g`:
 
+```python
+# app.py
+from flask import request, jsonify, g
+```
+
+And update `token_required` with the following:
+
+```python
 def token_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -111,7 +132,7 @@ def token_required(f):
 
 ## Using the token_required middleware
 
-It's been a long journey getting this far, so let's create the simplest possible route to test our @token_required decorator on.
+It's been a long journey getting this far, so let's create the simplest possible route to test our `@token_required` decorator on.
 
 This route will be a VIP Lounge that greets authenticated users by their username, but forbids unauthenticated users.
 
@@ -119,14 +140,21 @@ This route will be a VIP Lounge that greets authenticated users by their usernam
 - Method: `GET`
 - Response Body: `Welcome to the party, {username}`
 
-Let's start with the following, unprotected code that will let anyone at all access the details of any user:
+First, add the following imports to `app.py`:
 
 ```python
-# add the import statement to the top of our file
-from auth_middleware import token_required
-# add the g object to our list of flask imports
-from flask import request, jsonify, g
+# app.py
 
+# Import our custom middleware:
+from auth_middleware import token_required
+
+# Add the g object to our list of flask imports:
+from flask import Flask, jsonify, request, g
+```
+
+Next, add the following route:
+
+```python
 @app.route('/vip-lounge')
 @token_required
 def vip_lounge():
@@ -135,11 +163,14 @@ def vip_lounge():
 
 Since we attached the data from the token to the `g` object, we can access anything stored in that token (the user's `id` is also there!).
 
-Now, test this route after using the `auth/signin` route to obtain a token, and attach it to Postman's Auth section as we've previously done.
+Now, let's test this out in Postman.
+
+In Postman, sign up or sign in to obtain a token. After obtaining a token, attach it to Postman's Auth section as we've done previously.
+
+With the token set in Postman's Auth headers, make a request to `/vip-lounge`.
 
 It should show a message greeting the user you've just signed in with!
  
-
 ## Authorization
 
 For many routes, authentication is enough. The dashboard of most web applications will be accessible to any signed-in user, but will reject requests from someone not yet signed in. 

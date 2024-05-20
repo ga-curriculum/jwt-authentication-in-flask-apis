@@ -204,7 +204,17 @@ Make sure to send the correct body in the request. It should be formatted as suc
 }
 ```
 
-We should receive a response that includes the hashed password. While this is not our plain text password, we still shouldn't send it inside a JSON object. It should live safely inside our database. Let's fix that by adjusting our SQL statement:
+We should receive a response that includes the hashed password like the example below:
+
+```json
+{
+    "id": 5,
+    "password": "$2b$12$A142ODnQDdanYc1QnY21Q.8OKfA6bjKTIHa2gYZPJSLD72TeRc7Mq",
+    "username": "myusername"
+}
+```
+
+While this is not our plain text password, we still shouldn't send it inside a JSON object. It should live safely inside our database. Let's fix that by adjusting our SQL statement:
 
 ```python
 cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s) RETURNING username", (new_user_data["username"], hashed_password.decode('utf-8')))

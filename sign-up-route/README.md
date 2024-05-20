@@ -12,20 +12,45 @@ This section will set up an Express application to use JSON Web Tokens (JWT) for
 | username       | String | User's username        |
 | password | String | User's hashed password |
 
-### 🎓 You do: Create a user table
+## Create a user table
 
-To set up for this step in our project, you'll need to create a new database for this application called `flask-auth`, along with a `user` table, using the `psql` shell.
+To set up for this step in our project, we'll need to create a new database for this application called `flask_auth_db`, along with a `user` table, using the `psql` shell.
 
-Make sure it has the `username` and `password` fields as described above.
+Open your terminal and run the following command:
 
-<details>
-    <summary>Sample answer</summary>
+```bash
+psql
+```
+
+Next, we'll initialize a new database for this project:
+
+```sql
+CREATE DATABASE flask_auth_db;
+```
+
+To connect to the new database, run the following:
+
+```sql
+\c flask_auth_db;
+```
+
+After running the command above, you should see something like the following in your terminal:
+
+```plaintext
+You are now connected to database "flask_auth_db" as user "<your-user-name>"
+```
+
+Now that we are connected to the database we can create a table:
+
+```sql
     CREATE TABLE users (
         id SERIAL PRIMARY KEY,
         username VARCHAR(50) NOT NULL,
         password VARCHAR(255) NOT NULL
     );
-</details>
+```
+
+> 💡 Make sure the `user` table has the `username` and `password` fields as described above.
 
 ## Sign Up Route
 
@@ -80,11 +105,11 @@ We will create a new user using `psql` and SQL statements, so let's set up our h
 import psycopg2
 
 def get_db_connection():
-    conn = psycopg2.connect(host='localhost',
+    connection = psycopg2.connect(host='localhost',
                             database='flask_auth',
                             user=os.getenv('POSTGRES_USERNAME'),
                             password=os.getenv('POSTGRES_PASSWORD'))
-    return conn
+    return connection
 ```
 
 Make sure you've also defined the variables `POSTGRES_USERNAME` and `POSTGRES_PASSWORD` in your `.env` file to help keep this connection process secure.
@@ -122,8 +147,8 @@ The last thing we have to do for this route is handle any errors that might happ
 def signup():
     try:
         new_user_data = request.get_json()
-        con = get_db_connection()
-        cursor = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("SELECT * FROM users WHERE username = %s;", (new_user_data["username"],))
         existing_user = cursor.fetchone()
         if existing_user:
@@ -132,7 +157,7 @@ def signup():
         hashed_password = bcrypt.hashpw(bytes(new_user_data["password"], 'utf-8'), bcrypt.gensalt())
         cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s) RETURNING *", (new_user_data["username"], hashed_password.decode('utf-8')))
         created_user = cursor.fetchone()
-        con.commit()
+        connection.commit()
         return jsonify(created_user), 201
     except Exception as error:
         return jsonify({"error": str(error)}), 401

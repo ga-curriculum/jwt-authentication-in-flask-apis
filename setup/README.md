@@ -29,9 +29,16 @@ Activate the virtual environment:
 pipenv shell
 ```
 
+Create an `app.py` file by running the following command in your terminal:
+
+```bash
+touch app.py
+```
+
 Add the simplest Flask app boilerplate to `app.py`:
 
 ```python
+# app.py
 # Import the 'Flask' class from the 'flask' library.
 from flask import Flask
 
@@ -55,7 +62,7 @@ Run the application from the terminal:
 python app.py
 ```
 
-And send a test request in your browser to localhost:5000 to hit the index route.
+And send a test request in your browser to [localhost:5000](http://127.0.0.1:5000/) to hit the index route.
 
 Open the contents of the directory in VSCode:
 

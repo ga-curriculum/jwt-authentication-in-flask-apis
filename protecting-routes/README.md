@@ -8,7 +8,7 @@ At this stage, we're authenticating users when they sign in to our app by provid
 
 We could write code to handle this in each function that is attached to a protected route, but that would not be very DRY.
 
-Instead, let's create middleware that can be used on any route that should require authentication before proceeding. 
+Instead, let's create middleware that can be used on any route that should require authentication before proceeding.
 
 We'll use Flasks `decorator` pattern to create our own custom decorator, which will use the same syntax as our `@app.route()` decorator!
 
@@ -27,9 +27,9 @@ def verify_token():
        return jsonify({"error": error.message})
 ```
 
-This function will work well as a middleware, with a few small changes. 
+This function will work well as a middleware, with a few small changes.
 
-Instead of sending a response to a successful token, the function should return *the result of the next function it was passed* using the decorator pattern.
+Instead of sending a response to a successful token, the function should return _the result of the next function it was passed_ using the decorator pattern.
 
 Let's take this complex maneuver one step at a time, starting with the Flask documentation's decorator example for guidance:
 
@@ -170,10 +170,10 @@ In Postman, sign up or sign in to obtain a token. After obtaining a token, attac
 With the token set in Postman's Auth headers, make a request to `/vip-lounge`.
 
 It should show a message greeting the user you've just signed in with!
- 
+
 ## Authorization
 
-For many routes, authentication is enough. The dashboard of most web applications will be accessible to any signed-in user, but will reject requests from someone not yet signed in. 
+For many routes, authentication is enough. The dashboard of most web applications will be accessible to any signed-in user, but will reject requests from someone not yet signed in.
 
 Some routes, however, are also interested in **authorizing** the user, and only allowing access if the request is coming from a specific user.
 
@@ -181,10 +181,10 @@ Any routes requiring authentication through our `@token_required` middleware wil
 
 This strategy is applicable to any case where you want to restrict actions to the user who owns a specific resource, like editing or deleting their posts on social media.
 
-A more sophisticated authorization approach would grant users specific roles and permission levels, allowing an application's administrators to have access to any user's resources. 
+A more sophisticated authorization approach would grant users specific roles and permission levels, allowing an application's administrators to have access to any user's resources.
 
 ## Conclusion
 
 We have an Flask app that authenticates and authorizes users through a JWT approach. Consider it the start of a re-usable boilerplate that's useful for any Flask API requiring user management, but don't consider it the endpoint of proper user management in an application. For that, you'd need email verification, password management, oAuth considerations, and many other features expected and required of applications managing users.
 
-Besides, there are plenty of authentication management libraries in the Python ecosystem, so creating your own from scratch with JWT like we've done here is hardly necessary. At their foundation, however, all token-based authentication libraries and APIs are employing the same strategy we've implemented in this lesson, and being comfortable with the management and exchange of these tokens is critical no matter which token authentication implementation you're working with. 
+Besides, there are plenty of authentication management libraries in the Python ecosystem, so creating your own from scratch with JWT like we've done here is hardly necessary. At their foundation, however, all token-based authentication libraries and APIs are employing the same strategy we've implemented in this lesson, and being comfortable with the management and exchange of these tokens is critical no matter which token authentication implementation you're working with.

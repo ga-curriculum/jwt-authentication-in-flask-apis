@@ -2,12 +2,5 @@
 
 ## Lesson references
 
-- [tktk descriptive name of link]()
-- [tktk descriptive name of link]()
-- [tktk descriptive name of link]()
-
-## Level Up references
-
-- [tktk descriptive name of link]()
-- [tktk descriptive name of link]()
-- [tktk descriptive name of link]()
+- [pyjwt](https://pyjwt.readthedocs.io/en/stable/)
+- [Flasks `decorator` pattern](https://flask.palletsprojects.com/en/2.3.x/patterns/viewdecorators/)

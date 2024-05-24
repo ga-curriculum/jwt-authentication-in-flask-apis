@@ -6,13 +6,13 @@
 
 APIs often require some sort of **authentication** for you to use them - that is, some way of knowing who you are. They'll also often manage resource access, which we call authorization. We'll frequently use these two words together, but they handle two distinct parts of an application.
 
-| Authentication | Authorization |
-| -------------- | ------------- |
+| Authentication                           | Authorization                              |
+| ---------------------------------------- | ------------------------------------------ |
 | Confirms users are who they say they are | Manages user access to different resources |
 
 ## Token Authentication with JWT
 
-There are many ways to manage **authentication**, but for this lesson we'll focus on Token Authentication. This style of authentication in HTTP uses *tokens*, or unique identifier strings, to tell who a user is when they're making an **authenticated request**.
+There are many ways to manage **authentication**, but for this lesson we'll focus on Token Authentication. This style of authentication in HTTP uses _tokens_, or unique identifier strings, to tell who a user is when they're making an **authenticated request**.
 
 JSON Web Tokens (JWT) are a type of token authentication. JWT utilizes a JSON-formatted token that is signed with a secret key. This token is then sent to the client, who sends it back to the server with every request. The server can then verify the token and use the information in it to **authenticate** the user.
 

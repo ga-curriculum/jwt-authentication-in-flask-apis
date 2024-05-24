@@ -2,7 +2,7 @@
 
 ## About
 
-In this lesson, we set up a basic authentication strategy in Flask using JavaScript Web Tokens for data encryption and transfer.
+In this module, you'll learn to build an Flask API with JWT (JSON Web Tokens) authentication. We'll cover the basics of JWTs, including their functionality and importance in securing user data. You'll set up an Flask server and integrate JWT authentication to manage user access securely. By the end of this module, you'll have the skills to secure API routes and effectively control user access, providing a solid foundation for implementing JWT-based authentication in any web application.
 
 ## Prerequisites
 

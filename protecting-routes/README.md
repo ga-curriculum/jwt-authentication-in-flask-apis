@@ -158,7 +158,7 @@ Next, add the following route:
 @app.route('/vip-lounge')
 @token_required
 def vip_lounge():
-    return "Welcome to the party, {}".format(g.user["username"])
+    return f"Welcome to the party, {g.user['username']}"
 ```
 
 Since we attached the data from the token to the `g` object, we can access anything stored in that token (the user's `id` is also there!).

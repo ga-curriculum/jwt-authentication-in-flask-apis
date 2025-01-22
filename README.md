@@ -1,13 +1,11 @@
-# ![JWT Authentication in Flask APIs](./assets/hero.png)
+<h1>
+  <span class="prefix"></span>
+  <span class="headline">JWT Authentication in Flask APIs</span>
+</h1>
 
 ## About
 
 In this module, you'll learn to build an Flask API with JWT (JSON Web Tokens) authentication. We'll cover the basics of JWTs, including their functionality and importance in securing user data. You'll set up an Flask server and integrate JWT authentication to manage user access securely. By the end of this module, you'll have the skills to secure API routes and effectively control user access, providing a solid foundation for implementing JWT-based authentication in any web application.
-
-## Prerequisites
-
-- Intro to Flask
-- Flask and Postgres REST API
 
 ## Content
 
@@ -24,7 +22,23 @@ In this module, you'll learn to build an Flask API with JWT (JSON Web Tokens) au
 
 📖 [Reference Materials](./references/README.md)
 
-## Internal resources
+## Internal
+
+### Prerequisites
+
+- Intro to Flask
+- Flask and Postgres REST API
+
+### Solution code
+
+🏁 [Solution code](https://git.generalassemb.ly/modular-curriculum-all-courses/jwt-authentication-in-flask-apis)
+
+### Course landing pages
+
+- [SEB - Software Engineering Bootcamp](https://pages.git.generalassemb.ly/modular-curriculum-all-courses/jwt-authentication-in-flask-apis/canvas-landing-pages/seb.html)
+- [Fallback](https://pages.git.generalassemb.ly/modular-curriculum-all-courses/jwt-authentication-in-flask-apis/canvas-landing-pages/fallback.html)
+
+### Resources
 
 ✏️ [Instructor Guide](./internal-resources/instructor-guide.md)
 
@@ -34,4 +48,4 @@ In this module, you'll learn to build an Flask API with JWT (JSON Web Tokens) au
 
 ---
 
-**Find a 👾 bug 👾 or have suggestions? [Let us know](https://git.generalassemb.ly/modular-curriculum-all-courses/universal-resources-internal/blob/main/module-feedback.md)!**
+**Find a 👾 bug 👾 or have suggestions? [Let us know](https://pages.git.generalassemb.ly/modular-curriculum-all-courses/universal-resources-internal/module-feedback.html)!**

@@ -1,4 +1,7 @@
-# ![JWT Authentication in Flask APIs - Setup](./assets/hero.png)
+<h1>
+  <span class="headline">JWT Authentication in Flask APIs</span>
+  <span class="subhead">Setup</span>
+</h1>
 
 ## Setup
 

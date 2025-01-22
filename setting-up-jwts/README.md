@@ -1,4 +1,7 @@
-# ![JWT Authentication in Flask APIs - Setting up JWTs](./assets/hero.png)
+<h1>
+  <span class="headline">JWT Authentication in Flask APIs</span>
+  <span class="subhead">Setting up JWTs</span>
+</h1>
 
 **Learning objective:** By the end of this lesson, students will be able to explain how JSON Web Tokens use signing and verifying to authenticate users in a Flask application.
 
@@ -238,8 +241,8 @@ def verify_token():
         token = request.headers.get('Authorization').split(' ')[1]
         decoded_token = jwt.decode(token, os.getenv('JWT_SECRET'), algorithms=["HS256"])
         return jsonify({"user": decoded_token})
-    except Exception as error:
-       return jsonify({"error": error.message})
+    except Exception as err:
+       return jsonify({"err": err.message})
 ```
 
 Using Postman, make a POST request to `http://localhost:5000/verify-token`.

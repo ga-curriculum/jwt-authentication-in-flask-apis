@@ -1,4 +1,7 @@
-# ![JWT Authentication in Flask APIs - Protecting Routes](./assets/hero.png)
+<h1>
+  <span class="headline">JWT Authentication in Flask APIs</span>
+  <span class="subhead">Protecting Routes</span>
+</h1>
 
 **Learning objective:** By the end of this lesson, students will be able to use a token payload to protect a route from unauthorized users.
 
@@ -23,8 +26,8 @@ def verify_token():
         token = request.headers.get('Authorization').split(' ')[1]
         decoded_token = jwt.decode(token, os.getenv('JWT_SECRET'), algorithms=["HS256"])
         return jsonify({"user": decoded_token})
-    except Exception as error:
-       return jsonify({"error": error.message})
+    except Exception as err:
+       return jsonify({"err": err.message})
 ```
 
 This function will work well as a middleware, with a few small changes.
@@ -84,14 +87,14 @@ def token_required(f):
         authorization_header = request.headers.get('Authorization')
         # check if there is a header before attempting to decode it
         if authorization_header is None:
-            return jsonify({"error": "Unauthorized"}), 401
+            return jsonify({"err": "Unauthorized"}), 401
         try:
             # remove the 'Bearer' portion of the Auth header string
             token = authorization_header.split(' ')[1]
             # decode will throw an error if the token is invalid, triggering the except block automatically
             jwt.decode(token, os.getenv('JWT_SECRET'), algorithms=["HS256"])
-        except Exception as error:
-            return jsonify({"error": str(error)}), 500
+        except Exception as err:
+            return jsonify({"err": str(err)}), 500
         return f(*args, **kwargs)
     return decorated_function
 ```
@@ -119,26 +122,49 @@ def token_required(f):
     def decorated_function(*args, **kwargs):
         authorization_header = request.headers.get('Authorization')
         if authorization_header is None:
-            return jsonify({"error": "Unauthorized"}), 401
+            return jsonify({"err": "Unauthorized"}), 401
         try:
             token = authorization_header.split(' ')[1]
             token_data = jwt.decode(token, os.getenv('JWT_SECRET'), algorithms=["HS256"])
             g.user = token_data
-        except Exception as error:
-            return jsonify({"error": str(error)}), 500
+        except Exception as err:
+            return jsonify({"err": str(err)}), 500
         return f(*args, **kwargs)
     return decorated_function
 ```
 
 ## Using the token_required middleware
 
+We'll implement two routes to test our middleware - one that protects against unauthenticated users, and another that protects against both unauthenticated and unauthorized users. Both routes will interact with our `user` table.
+
+Our application's user data is pretty dull without extra details added to the user, so a more robust application might want more details (or even a second, one-to-one `profile` table) attached to each user.
+
 It's been a long journey getting this far, so let's create the simplest possible route to test our `@token_required` decorator on.
 
 This route will be a VIP Lounge that greets authenticated users by their username, but forbids unauthenticated users.
 
-- Route: `/vip-lounge`
+- Route: `/users`
 - Method: `GET`
-- Response Body: `Welcome to the party, {username}`
+- Response Body: `[ { username : <user's username>, id : <user's id> } ]`
+
+Let's spin up an unprotected version of this route in `app.py` that gets the data we'll need:
+
+```python
+@app.route('/users')
+def users_index():
+    connection = get_db_connection()
+    cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cursor.execute("SELECT id, username FROM users;")
+    users = cursor.fetchall()
+    connection.close()
+    return jsonify(users), 200
+```
+
+Now, test this route by sending a `GET` request to `/users`. You should be able to get a response even when sending a request through your browser, which has no token and is, therefore, unauthenticated. This means our route is open to anyone.
+
+## Authenticating on the users route
+
+Now, let's add our `@token_required` middleware to the `/users` route.
 
 First, add the following imports to `app.py`:
 
@@ -147,29 +173,27 @@ First, add the following imports to `app.py`:
 
 # Import our custom middleware:
 from auth_middleware import token_required
-
-# Add the g object to our list of flask imports:
-from flask import Flask, jsonify, request, g
 ```
 
-Next, add the following route:
+Then add the `@token_required` decorator to the `/users` route you just created:
 
 ```python
-@app.route('/vip-lounge')
+@app.route('/users')
 @token_required
-def vip_lounge():
-    return f"Welcome to the party, {g.user['username']}"
+def users_index():
+    connection = get_db_connection()
+    cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cursor.execute("SELECT id, username FROM users;")
+    users = cursor.fetchall()
+    connection.close()
+    return jsonify(users), 200
 ```
-
-Since we attached the data from the token to the `g` object, we can access anything stored in that token (the user's `id` is also there!).
-
-Now, let's test this out in Postman.
 
 In Postman, sign up or sign in to obtain a token. After obtaining a token, attach it to Postman's Auth section as we've done previously.
 
-With the token set in Postman's Auth headers, make a request to `/vip-lounge`.
+With the token set in Postman's Auth headers, make a request to `/users`.
 
-It should show a message greeting the user you've just signed in with!
+You should see a list of users in the response!
 
 ## Authorization
 
@@ -179,7 +203,64 @@ Some routes, however, are also interested in **authorizing** the user, and only 
 
 Any routes requiring authentication through our `@token_required` middleware will also grant us access to the `id` of the user. We could then use this to determine if that specific user is allowed to fulfill the request or not.
 
-This strategy is applicable to any case where you want to restrict actions to the user who owns a specific resource, like editing or deleting their posts on social media.
+This strategy is applicable to any case where you want to restrict actions to the user who owns a specific resource, like editing or deleting their posts on social media, or if you just want to ensure that a user can only access their own data.
+
+Let's see what this would look like, using a route that allows a user to view their own user data.
+
+- Route: `/users/:userId`
+- Method: `GET`
+- Response Body: `{ username : <user's username>, id : <user's id> }`
+
+Let's build a route that allows any user to view any other user's data:
+
+```python
+@app.route('/users/<user_id>')
+@token_required
+def users_index(user_id):
+    connection = get_db_connection()
+    cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cursor.execute("SELECT id, username FROM users WHERE id = %s;", (user_id))
+    user = cursor.fetchone()
+    connection.close()
+    if user is None:
+        return jsonify({"err": "User not found"}), 404
+    return jsonify(user), 200
+```
+
+Now, let's test this out in Postman.
+
+Make a request to `/users/1` with a token attached. As long as this user exists, you should see the user with the `id` of `1` in the response.
+
+Next, we can add authorization to this route so that only a user can access their own data. Start by changing our flask imports in `app.py` to include the `g` object:
+
+```python
+# Add the g object to our list of flask imports:
+from flask import Flask, jsonify, request, g
+```
+
+We'll add a check to ensure the `id` in the token matches the `id` in the route.
+
+```python
+@app.route('/users/<user_id>')
+@token_required
+def users_index(user_id):
+    # If the user is looking for the details of another user, block the request
+    # Send a 403 status code to indicate that the user is unauthorized
+    if user_id != g.user["id"]:
+        return jsonify({"err": "Unauthorized"}), 403
+    connection = get_db_connection()
+    cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cursor.execute("SELECT id, username FROM users WHERE id = %s;", (user_id))
+    user = cursor.fetchone()
+    connection.close()
+    if user is None:
+        return jsonify({"err": "User not found"}), 404
+    return jsonify(user), 200
+```
+
+Since we attached the data from the token to the `g` object, we can access anything stored in that token (like the requesting user's `id`!).
+
+There we have it! This strategy applies to any case where you want to restrict actions to the user who owns a specific resource, like editing or deleting their posts on social media.
 
 A more sophisticated authorization approach would grant users specific roles and permission levels, allowing an application's administrators to have access to any user's resources.
 

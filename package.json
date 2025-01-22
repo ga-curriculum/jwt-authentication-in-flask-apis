@@ -8,6 +8,6 @@
   "type": "module",
   "author": "General Assembly",
   "devDependencies": {
-    "ga-mdlint": "^1.0.1"
+    "ga-mdlint": "^1.0.5"
   }
 }

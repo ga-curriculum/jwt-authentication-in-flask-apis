@@ -35,8 +35,8 @@ In this module, you'll learn to build an Flask API with JWT (JSON Web Tokens) au
 
 ### Course landing pages
 
-- [SEB - Software Engineering Bootcamp](https://pages.git.generalassemb.ly/modular-curriculum-all-courses/jwt-authentication-in-flask-apis/canvas-landing-pages/seb.html)
-- [Fallback](https://pages.git.generalassemb.ly/modular-curriculum-all-courses/jwt-authentication-in-flask-apis/canvas-landing-pages/fallback.html)
+- [SEB - Software Engineering Bootcamp](https://ga-curriculum.github.io/jwt-authentication-in-flask-apis/canvas-landing-pages/seb.html)
+- [Fallback](https://ga-curriculum.github.io/jwt-authentication-in-flask-apis/canvas-landing-pages/fallback.html)
 
 ### Resources
 
@@ -48,4 +48,4 @@ In this module, you'll learn to build an Flask API with JWT (JSON Web Tokens) au
 
 ---
 
-**Find a 👾 bug 👾 or have suggestions? [Let us know](https://pages.git.generalassemb.ly/modular-curriculum-all-courses/universal-resources-internal/module-feedback.html)!**
+**Find a 👾 bug 👾 or have suggestions? [Let us know](https://ga-curriculum.github.io/universal-resources-internal/module-feedback.html)!**

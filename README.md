@@ -31,7 +31,7 @@ In this module, you'll learn to build an Flask API with JWT (JSON Web Tokens) au
 
 ### Solution code
 
-🏁 [Solution code](https://git.generalassemb.ly/modular-curriculum-all-courses/jwt-authentication-in-flask-apis)
+🏁 [Solution code](./)
 
 ### Course landing pages
 
